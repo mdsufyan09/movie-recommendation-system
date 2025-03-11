@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie Recommender</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; background: #181818; color: red; }
+        input, button { padding: 10px; margin: 10px; font-size: 16px; }
+        ul { list-style: none; padding: 0; }
+        li { padding: 10px; border-bottom: 1px solid #444; padding: 15px; cursor: pointer; color: #ffcc00; }
+        .error { color: red; font-size: 14px; margin-top: 10px; }
+        .highlight { border: 2px solid red; }
+    </style>
+    <script>
+        function validateForm() {
+            let movieInput = document.getElementById("movie_name");
+            let errorMessage = document.getElementById("error-message");
+
+            if (movieInput.value.trim() === "") {
+                errorMessage.textContent = "Please enter a movie name!";
+                movieInput.classList.add("highlight");
+                return false; // Prevent form submission
+            }
+
+            errorMessage.textContent = "";
+            movieInput.classList.remove("highlight");
+            return true; // Allow form submission
+        }
+
+        function showDetails(movieId) {
+            fetch('/movie/' + movieId)
+            .then(response => response.json())
+            .then(data => {
+                alert(
+                    "Title: " + data.title + "\n" +
+                    "Release Date: " + data.release_date + "\n" +
+                    "Language: " + data.original_language + "\n" +
+                    "Overview: " + data.overview
+                );
+            });
+        }
+    </script>
+</head>
+<body>
+    <h1>Movie Recommendation System</h1>
+    <form method="POST" onsubmit="return validateForm()">
+        <input type="text" id="movie_name" name="movie_name" placeholder="Enter a movie name">
+        <button type="submit">Get Recommendations</button>
+        <p id="error-message" class="error"></p>
+    </form>
+    {% if recommendations %}
+    <h2>Recommended Movies:</h2>
+    <ul>
+        {% for movie in recommendations %}
+        <li onclick="showDetails({{ movie.id }})">
+            <strong>{{ movie.title }}</strong> ({{ movie.original_language }})
+        </li>
+        {% endfor %}
+    </ul>
+    {% endif %}
+</body>
+</html>
